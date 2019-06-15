@@ -7,3 +7,6 @@
 [submodule "vondehi"]
 	path = vondehi
 	url = https://gitlab.com/PoroCYon/vondehi.git
+[submodule "smol"]
+	path = smol
+	url = https://github.com/PoroCYon/smol.git
