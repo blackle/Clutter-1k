@@ -1,9 +1,5 @@
 uniform float iTime;
 
-float gradient(vec2 point, vec2 origin, vec2 dir) {
-    return clamp(dot(point - origin, dir) + 0.5, 0.0, 1.0);
-}
-
 float plasma(vec2 p, float offset) {
     vec2 point = p * 2.0;
     float plsm = 1.0;
@@ -12,7 +8,7 @@ float plasma(vec2 p, float offset) {
         float t2 = iTime * 0.08 + offset;
         vec2 origin = vec2(cos(i+t1), sin(i+t1));
         vec2 dir = vec2(cos(i*3.0 + t2), sin(i*2.0 + t2));
-        plsm = abs(plsm - gradient(point, origin, dir));
+        plsm = abs(plsm - clamp(dot(point - origin, dir) + 0.5, 0.0, 1.0));
     }
     return mix(0.2, plsm, clamp((iTime-15.0)*0.5, 0.0, 1.0));
 }
