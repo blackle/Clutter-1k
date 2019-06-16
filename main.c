@@ -2,10 +2,9 @@
 #include <stdlib.h>
 #include "shader.h"
 
-#define CANVAS_HEIGHT 1080
-#define CANVAS_WIDTH 1920
+#define ANIMATE
 
-static void close_app() {
+static void kill_app() {
 	asm volatile(".intel_syntax noprefix");
 	asm volatile("push 231"); //exit_group
 	asm volatile("pop rax");
@@ -14,6 +13,13 @@ static void close_app() {
 	asm volatile(".att_syntax prefix");
 	__builtin_unreachable();
 }
+
+#if defined(ANIMATE)
+static void on_new_frame(ClutterTimeline *timeline, gint msecs, ClutterEffect *shader) {
+	(void)timeline;
+	clutter_shader_effect_set_uniform(CLUTTER_SHADER_EFFECT(shader), VAR_ITIME, G_TYPE_FLOAT, 1, msecs/1000.0);
+}
+#endif
 
 int main(int argc, char** argv) {
 	(void)argc;
@@ -34,10 +40,22 @@ int main(int argc, char** argv) {
 
 	ClutterEffect *shader = clutter_shader_effect_new(CLUTTER_FRAGMENT_SHADER);
 	clutter_shader_effect_set_shader_source(CLUTTER_SHADER_EFFECT(shader), shader_frag);
+
+#if defined(ANIMATE)
+	clutter_actor_add_effect(stage, clutter_blur_effect_new());
+#endif
 	clutter_actor_add_effect(stage, shader);
 
-	g_signal_connect(stage, "delete-event", G_CALLBACK(close_app), NULL);
+#if defined(ANIMATE)
+	ClutterTimeline *timeline = clutter_timeline_new(100000);
+	g_signal_connect(timeline, "new-frame", G_CALLBACK(on_new_frame), shader);
+	g_signal_connect(timeline, "completed", G_CALLBACK(kill_app), NULL);
+#endif
+	g_signal_connect(stage, "delete-event", G_CALLBACK(kill_app), NULL);
 
+#if defined(ANIMATE)
+	clutter_timeline_start(timeline);
+#endif
 	clutter_main();
 	__builtin_unreachable();
 }

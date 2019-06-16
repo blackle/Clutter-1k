@@ -5,7 +5,7 @@ CFLAGS := -fno-plt -Os -std=gnu11 -nostartfiles -Wall -Wextra
 CFLAGS += -fno-stack-protector -fno-stack-check -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer
 CFLAGS += -no-pie -fno-pic -fno-PIE -fno-PIC -march=core2 -ffunction-sections -fdata-sections
 
-all : main
+all : main main_bad
 
 .PHONY: noelfver
 
@@ -37,10 +37,18 @@ main : main.elf.packed
 	mv $< $@
 	wc -c $@
 
+main_bad : main.elf.bad_packed
+	mv $< $@
+	wc -c $@
+
 %.xz : % Makefile
 	-rm $@
-	lzma --format=lzma -9 --extreme --lzma1=preset=9,lc=0,lp=0,pb=0,nice=100,depth=32,dict=16384 --keep --stdout $< > $@
+	lzma --format=lzma -9 --extreme --lzma1=preset=9,lc=0,lp=0,pb=0,nice=120,depth=64,dict=16384 --keep --stdout $< > $@
 
 %.packed : %.xz packer Makefile
 	cat ./vondehi/vondehi $< > $@
+	chmod +x $@
+
+%.bad_packed : %.xz bad_header.sh Makefile
+	cat bad_header.sh $< > $@
 	chmod +x $@
