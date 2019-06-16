@@ -52,7 +52,6 @@ float rand(vec2 co){
 
 void main() {
 		vec2 framecoords = (cogl_tex_coord_in[0].xy*2.0-1.0)*vec2(1.0, 0.56);
-    
     vec2 uv = rotate(framecoords, cos(iTime*0.054)*5.0+cos(iTime*0.013)*10.0)*(1.0+cos(iTime*0.67)*0.5);
     uv += vec2(cos(iTime*0.05*2.0), sin(iTime*0.05*3.0))*0.5;
     
