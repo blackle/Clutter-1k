@@ -33,6 +33,7 @@ int main(int argc, char** argv) {
 	g_signal_connect(timeline, "completed", G_CALLBACK(clutter_main_quit), NULL);
 #endif
 	g_signal_connect(stage, "delete-event", G_CALLBACK(clutter_main_quit), NULL);
+	g_signal_connect(stage, "key-press-event", G_CALLBACK(clutter_main_quit), NULL);
 
 #if !defined(FULL_SCREEN)
 	clutter_actor_set_size(stage, 640, 360);
