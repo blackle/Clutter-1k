@@ -7,14 +7,14 @@ float gradient(vec2 point, vec2 origin, vec2 dir) {
 float plasma(vec2 p, float offset) {
     vec2 point = p * 2.0;
     float plsm = 1.0;
-    for(float i = 0.0; i < 30.0; i++) {
+    for(float i = 0.0; i < 40.0; i++) {
         float t1 = iTime * 0.04 + offset;
         float t2 = iTime * 0.08 + offset;
         vec2 origin = vec2(cos(i+t1), sin(i+t1));
         vec2 dir = vec2(cos(i*3.0 + t2), sin(i*2.0 + t2));
         plsm = abs(plsm - gradient(point, origin, dir));
     }
-    return plsm;
+    return mix(0.2, plsm, clamp((iTime-15.0)*0.5, 0.0, 1.0));
 }
 
 vec2 rotate(vec2 point, float angle) {
@@ -46,6 +46,10 @@ float hexagons(vec2 point) {
     );
 }
 
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
 void main() {
 		vec2 framecoords = (cogl_tex_coord_in[0].xy*2.0-1.0)*vec2(1.0, 0.56);
     
@@ -56,7 +60,7 @@ void main() {
     float hex = hexagons(uv*hexmult);
     
     if ( hex < 0.0) {
-        uv += vec2(-0.005,0.005);
+        uv += vec2(-0.01,0.01);
     }
 	
     float pls = plasma(uv, 0.0);
@@ -73,12 +77,13 @@ void main() {
     // Time varying pixel color
     float col = (1.0-pls)*0.8;
     col += max(0.0,plshighlight)*0.5;
+    plshighlight = pow(max(0.1, plshighlight),2.);
     
     if ( hex < 0.0) {
         hex += hexagons((uv + vec2(-0.005,0.005))*hexmult);
         col *= mix(1.0, -hex*5.0, 0.5);
     }
     // Output to screen
-    cogl_color_out = vec4(col, 0.04+plshighlight*0.1,0.11+plshighlight*0.1,1.0)*0.2;
+    cogl_color_out = vec4(col, 0.04+plshighlight*0.4,0.11+plshighlight*0.2,1.0)*0.4*rand(uv)*(1.0-clamp((iTime-35.0)*0.1, 0.0, 1.0));
 }
 
